@@ -90,21 +90,17 @@ public class IDEController {
         Database database = analyzer.getDatabase();
         ArrayList<Table> tables = database.getTables();
 
-        ImageView databaseIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/edu/upvictoria/javasqlide/images/database.png"))));
-        ImageView tableIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/edu/upvictoria/javasqlide/images/table.png"))));
-        ImageView columnIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/edu/upvictoria/javasqlide/images/column.png"))));
-
-        TreeItem<String> databaseItem = new TreeItem<>(database.getDbFile().getName(), databaseIcon);
+        TreeItem<String> databaseItem = new TreeItem<>(database.getDbFile().getName(), new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/edu/upvictoria/javasqlide/images/database.png")))));
         databaseItem.setExpanded(true);
 
         for(Table table : tables) {
-            TreeItem<String> tableItem = new TreeItem<>(table.getTableName(), tableIcon);
+            TreeItem<String> tableItem = new TreeItem<>(table.getTableName(), new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/edu/upvictoria/javasqlide/images/table.png")))));
             tableItem.setExpanded(false);
             databaseItem.getChildren().add(tableItem);
 
             ArrayList<Column> columns = table.getColumns();
             for(Column column : columns) {
-                TreeItem<String> columnItem = new TreeItem<>(column.getName(), columnIcon);
+                TreeItem<String> columnItem = new TreeItem<>(column.getName(), new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/edu/upvictoria/javasqlide/images/column.png")))));
                 tableItem.getChildren().add(columnItem);
             }
         }
