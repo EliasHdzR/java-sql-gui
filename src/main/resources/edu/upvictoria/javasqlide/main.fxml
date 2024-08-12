@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.fxmisc.richtext.CodeArea?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="edu.upvictoria.javasqlide.controllers.IDEController">
+    <FlowPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+              prefHeight="800.0" prefWidth="1280.0">
+        <MenuBar prefHeight="29.0" prefWidth="1279.0">
+            <cursor>
+                <Cursor fx:constant="DEFAULT"/>
+            </cursor>
+            <Menu mnemonicParsing="false" text="File">
+                <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open..."/>
+                <SeparatorMenuItem mnemonicParsing="false"/>
+                <MenuItem mnemonicParsing="false" text="Save"/>
+                <MenuItem mnemonicParsing="false" text="Save as..."/>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Database">
+                <MenuItem mnemonicParsing="false" onAction="#useDB" text="Choose"/>
+            </Menu>
+        </MenuBar>
+        <Pane prefHeight="771.0" prefWidth="217.0">
+            <TreeView fx:id="dbFileView" prefHeight="771.0" prefWidth="217.0"/>
+        </Pane>
+        <VBox prefHeight="771.0" prefWidth="1062.0">
+            <ToolBar prefHeight="41.0" prefWidth="764.0">
+                <Button alignment="CENTER" mnemonicParsing="false" onAction="#executeSelectedStatement" textAlignment="CENTER">
+                    <tooltip>
+                        <Tooltip text="Run Statement"/>
+                    </tooltip>
+                    <graphic>
+                        <ImageView>
+                            <cursor>
+                                <Cursor fx:constant="HAND"/>
+                            </cursor>
+                            <Image url="@images/play-16.png"/>
+                        </ImageView>
+                    </graphic>
+                    <cursor>
+                        <Cursor fx:constant="HAND"/>
+                    </cursor>
+                </Button>
+                <Button alignment="CENTER" mnemonicParsing="false" textAlignment="CENTER">
+                    <cursor>
+                        <Cursor fx:constant="HAND"/>
+                    </cursor>
+                    <graphic>
+                        <ImageView>
+                            <cursor>
+                                <Cursor fx:constant="HAND"/>
+                            </cursor>
+                            <Image url="@images/code-16.png"/>
+                        </ImageView>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="Run Script"/>
+                    </tooltip>
+                </Button>
+            </ToolBar>
+            <Pane prefHeight="450.0" prefWidth="1062.0">
+                <CodeArea fx:id="codeArea" layoutX="3.0" layoutY="1.0" prefHeight="435.0" prefWidth="1055.0"/>
+            </Pane>
+            <TabPane fx:id="tabs" prefHeight="280.0" prefWidth="1062.0" tabClosingPolicy="UNAVAILABLE">
+                <Tab text="Statement Output">
+                    <TableView prefHeight="138.0" prefWidth="1062.0" visible="false"/>
+                </Tab>
+                <Tab text="Log">
+                    <TextArea fx:id="errorMessages" editable="false" prefHeight="200.0" prefWidth="200.0"/>
+                </Tab>
+            </TabPane>
+        </VBox>
+    </FlowPane>
+</AnchorPane>
