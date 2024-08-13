@@ -5,6 +5,7 @@ module edu.upvictoria.javasqlide {
     requires ExceptionFramework;
     requires java.sql;
     requires org.fxmisc.richtext;
+    requires reactfx;
 
     opens edu.upvictoria.javasqlide.controllers to javafx.fxml;
     exports edu.upvictoria.javasqlide;

@@ -15,6 +15,8 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
+import org.fxmisc.richtext.model.StyleSpans;
+import org.fxmisc.richtext.model.StyleSpansBuilder;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,7 +24,10 @@ import java.io.FileReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class IDEController {
@@ -42,15 +47,17 @@ public class IDEController {
     private static final String CONSTRAINTS_PATTERN = "\\b(" + String.join("|", Analyzer.getConstraints()) + ")\\b";
     private static final String FUNCTIONS_PATTERN = "\\b(" + String.join("|", Analyzer.getFunctions()) + ")\\b";
     private static final String PAREN_PATTERN = "\\(|\\)";
+    private static final String COMPARATORS_PATTERN = "\\b(" + String.join("|", Analyzer.getComparators()) + ")\\b";
     private static final String SEMICOLON_PATTERN = "\\;";
-    private static final String STRING_PATTERN = "\"([^'\\\\]|\\\\.)*'";
+    private static final String STRING_PATTERN = "'([^'\\\\]|\\\\.)*'";
 
     private static final Pattern PATTERN = Pattern.compile(
             "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
+                    + "|(?<PAREN>" + PAREN_PATTERN + ")"
                     + "|(?<DATATYPE>" + DATATYPES_PATTERN + ")"
                     + "|(?<CONSTRAINT>" + CONSTRAINTS_PATTERN + ")"
                     + "|(?<FUNCTION>" + FUNCTIONS_PATTERN + ")"
-                    + "|(?<PAREN>" + PAREN_PATTERN + ")"
+                    + "|(?<COMPARATOR>" + COMPARATORS_PATTERN + ")"
                     + "|(?<SEMICOLON>" + SEMICOLON_PATTERN + ")"
                     + "|(?<STRING>" + STRING_PATTERN + ")"
     );
@@ -67,6 +74,12 @@ public class IDEController {
             }
         });
 
+        codeArea.richChanges()
+                .filter(ch -> !ch.getInserted().equals(ch.getRemoved()))
+                .subscribe(change -> {
+                    codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText()));
+                });
+        codeArea.getStyleClass().add("area");
     }
 
     @FXML
@@ -162,6 +175,32 @@ public class IDEController {
             handleExceptions(e.getMessage());
         }
     }
+
+    private StyleSpans<Collection<String>> computeHighlighting(String text) {
+        text = text.toUpperCase();
+        Matcher matcher = PATTERN.matcher(text);
+        int lastKwEnd = 0;
+        StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
+
+        while(matcher.find()) {
+            String styleClass =
+                    matcher.group("KEYWORD") != null ? "keyword" :
+                    matcher.group("DATATYPE") != null ? "datatype" :
+                    matcher.group("CONSTRAINT") != null ? "constraint" :
+                    matcher.group("FUNCTION") != null ? "function" :
+                    matcher.group("COMPARATOR") != null ? "comparator" :
+                    matcher.group("PAREN") != null ? "paren" :
+                    matcher.group("SEMICOLON") != null ? "semicolon" :
+                    matcher.group("STRING") != null ? "string" :
+                    null; /* never happens */ assert styleClass != null;
+            spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
+            spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
+            lastKwEnd = matcher.end();
+        }
+        spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
+        return spansBuilder.create();
+    }
+
 
     /**
      * Aquí mando toda la basura de mensajes de excepciones para que se impriman en el tab de logs

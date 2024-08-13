@@ -1,0 +1,30 @@
+.keyword {
+    -fx-fill: purple;
+    -fx-font-weight: bold;
+}
+.semicolon {
+    -fx-font-weight: bold;
+}
+.comparator {
+    -fx-fill: firebrick;
+    -fx-font-weight: bold;
+}
+.paren {
+    -fx-fill: firebrick;
+    -fx-font-weight: bold;
+}
+.datatype {
+    -fx-fill: darkgreen;
+    -fx-font-weight: bold;
+}
+.constraint {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+.string {
+    -fx-fill: blue;
+}
+
+.function {
+    -fx-fill: cadetblue;
+}
