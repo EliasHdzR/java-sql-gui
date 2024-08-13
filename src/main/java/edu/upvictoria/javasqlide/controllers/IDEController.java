@@ -13,16 +13,17 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,8 +32,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class IDEController {
-    Analyzer analyzer = new Analyzer();
-    
+    private final Analyzer analyzer = new Analyzer();
+    private File file = null;
+
     @FXML
     private TreeView<String> dbFileView;
     @FXML
@@ -126,10 +128,10 @@ public class IDEController {
         chooser.setTitle("Select SQL File");
         chooser.setInitialDirectory(new File(System.getProperty("user.home")));
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL File", "*.sql"));
-        File selectedFile = chooser.showOpenDialog(null);
+        file = chooser.showOpenDialog(null);
 
-        if (selectedFile != null) {
-            codeArea.replaceText(getFileContent(selectedFile));
+        if (file != null) {
+            codeArea.replaceText(getFileContent(file));
         }
     }
 
@@ -154,15 +156,36 @@ public class IDEController {
 
     @FXML
     protected void saveFile(ActionEvent event) {
+        if(file == null) {
+            saveFileAs();
+            return;
+        }
+
+        saveTextToFile(codeArea.getText(), file);
     }
 
     @FXML
-    protected void saveFileAs(ActionEvent event) {
+    protected void saveFileAs() {
         FileChooser chooser = new FileChooser();
-        chooser.setTitle("Select SQL File");
+        chooser.setTitle("Save SQL File");
         chooser.setInitialDirectory(new File(System.getProperty("user.home")));
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL File", "*.sql"));
         File selectedFile = chooser.showSaveDialog(null);
+
+        if (selectedFile != null) {
+            if (!selectedFile.getName().endsWith(".sql")) {
+                selectedFile = new File(selectedFile.getAbsolutePath() + ".sql");
+            }
+            saveTextToFile(codeArea.getText(), selectedFile);
+        }
+    }
+
+    private void saveTextToFile(String content, File file) {
+        try (PrintWriter writer = new PrintWriter(file)) {
+            writer.println(content);
+        } catch (IOException ex) {
+            handleExceptions(ex.getMessage());
+        }
     }
 
     @FXML
@@ -173,6 +196,10 @@ public class IDEController {
             analyzer.analyzeSyntax(selection);
         } catch (Exception e) {
             handleExceptions(e.getMessage());
+        }
+
+        if(file != null) {
+            loadTree();
         }
     }
 
@@ -201,7 +228,6 @@ public class IDEController {
         return spansBuilder.create();
     }
 
-
     /**
      * Aquí mando toda la basura de mensajes de excepciones para que se impriman en el tab de logs
      * @param errorMessage
@@ -209,6 +235,12 @@ public class IDEController {
     protected void handleExceptions(String errorMessage) {
         SingleSelectionModel<Tab> selectionModel = tabs.getSelectionModel();
         selectionModel.select(1);
-        errorMessages.setText(errorMessage);
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+
+        String log = errorMessages.getText();
+        log = log + "\n" + dtf.format(now) + ": " + errorMessage;
+        errorMessages.setText(log);
     }
 }

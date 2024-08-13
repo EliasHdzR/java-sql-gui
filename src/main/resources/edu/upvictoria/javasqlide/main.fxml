@@ -17,8 +17,8 @@
             <Menu mnemonicParsing="false" text="File">
                 <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open..."/>
                 <SeparatorMenuItem mnemonicParsing="false"/>
-                <MenuItem mnemonicParsing="false" text="Save"/>
-                <MenuItem mnemonicParsing="false" text="Save as..."/>
+                <MenuItem mnemonicParsing="false" onAction="#saveFile" text="Save"/>
+                <MenuItem mnemonicParsing="false" onAction="#saveFileAs" text="Save as..."/>
             </Menu>
             <Menu mnemonicParsing="false" text="Database">
                 <MenuItem mnemonicParsing="false" onAction="#useDB" text="Choose"/>
