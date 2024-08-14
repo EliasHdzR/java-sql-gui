@@ -16,6 +16,7 @@
             </cursor>
             <Menu mnemonicParsing="false" text="File">
                 <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open..."/>
+                <MenuItem mnemonicParsing="false" onAction="#closeFile" text="Close"/>
                 <SeparatorMenuItem mnemonicParsing="false"/>
                 <MenuItem mnemonicParsing="false" onAction="#saveFile" text="Save"/>
                 <MenuItem mnemonicParsing="false" onAction="#saveFileAs" text="Save as..."/>
@@ -61,9 +62,11 @@
                         <Tooltip text="Run Script"/>
                     </tooltip>
                 </Button>
+                <Region prefHeight="29.0" prefWidth="400.0" />
+                <Label fx:id="fileTitle" text="Untitled" />
             </ToolBar>
             <Pane prefHeight="450.0" prefWidth="1062.0">
-                <CodeArea fx:id="codeArea" onKeyPressed="#checkFileChanges" layoutX="3.0" layoutY="1.0" prefHeight="435.0" prefWidth="1055.0"/>
+                <CodeArea fx:id="codeArea" onKeyTyped="#checkFileChanges" layoutX="3.0" layoutY="1.0" prefHeight="435.0" prefWidth="1055.0"/>
             </Pane>
             <TabPane fx:id="tabs" prefHeight="280.0" prefWidth="1062.0" tabClosingPolicy="UNAVAILABLE">
                 <Tab text="Statement Output">

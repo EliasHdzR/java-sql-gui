@@ -36,16 +36,12 @@ public class IDEController {
     private final Reader reader = new Reader();
     private File file = null;
 
-    @FXML
-    private TreeView<String> dbFileView;
-    @FXML
-    private TabPane tabs;
-    @FXML
-    private TextArea errorMessages;
-    @FXML
-    private CodeArea codeArea;
-    @FXML
-    private TableView<ArrayList<String>> tableView;
+    @FXML private TreeView<String> dbFileView;
+    @FXML private TabPane tabs;
+    @FXML private TextArea errorMessages;
+    @FXML private CodeArea codeArea;
+    @FXML private TableView<ArrayList<String>> tableView;
+    @FXML Label fileTitle;
 
     private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", Analyzer.getKeywords()) + ")\\b";
     private static final String DATATYPES_PATTERN = "\\b(" + String.join("|", Analyzer.getDataTypes()) + ")\\b";
@@ -135,7 +131,15 @@ public class IDEController {
 
         if (file != null) {
             codeArea.replaceText(getFileContent(file));
+            checkFileChanges();
         }
+    }
+
+    @FXML
+    protected void closeFile(ActionEvent event) {
+        codeArea.replaceText("");
+        file = null;
+        checkFileChanges();
     }
 
     private String getFileContent(File file){
@@ -165,6 +169,8 @@ public class IDEController {
         }
 
         saveTextToFile(codeArea.getText(), file);
+        file = new File(file.getAbsolutePath());
+        checkFileChanges();
     }
 
     @FXML
@@ -180,6 +186,8 @@ public class IDEController {
                 selectedFile = new File(selectedFile.getAbsolutePath() + ".sql");
             }
             saveTextToFile(codeArea.getText(), selectedFile);
+            file = selectedFile;
+            checkFileChanges();
         }
     }
 
@@ -267,11 +275,21 @@ public class IDEController {
     }
 
     @FXML
-    protected void checkFileChanges(KeyEvent event) {
+    protected void checkFileChanges() {
+        if(file == null) {
+            fileTitle.setText("Untitled");
+            return;
+        }
+
         String codeAreaText = codeArea.getText();
         String fileText = getFileContent(file);
 
+        if(codeAreaText.equals(fileText)){
+           fileTitle.setText(file.getName());
+           return;
+        }
 
+        fileTitle.setText(file.getName() + " - Unsaved Changes");
     }
 
     private StyleSpans<Collection<String>> computeHighlighting(String text) {
