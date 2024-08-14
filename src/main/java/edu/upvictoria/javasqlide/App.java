@@ -15,8 +15,9 @@ public class App extends Application {
             FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("main.fxml"));
 
             Scene scene = new Scene(fxmlLoader.load(), 1280, 800);
-            stage.setTitle("Java SQL Developer");
             scene.getStylesheets().add(Objects.requireNonNull(App.class.getResource("/edu/upvictoria/javasqlide/sql-keywords.css")).toExternalForm());
+
+            stage.setTitle("Java SQL Developer");
             stage.setScene(scene);
             stage.show();
         } catch (Exception e){

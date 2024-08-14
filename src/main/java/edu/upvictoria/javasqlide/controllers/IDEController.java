@@ -1,9 +1,13 @@
 package edu.upvictoria.javasqlide.controllers;
 
 import edu.upvictoria.poo.Analyzer;
+import edu.upvictoria.poo.Reader;
 import edu.upvictoria.poo.Column;
 import edu.upvictoria.poo.Database;
 import edu.upvictoria.poo.Table;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -13,7 +17,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
@@ -24,15 +27,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class IDEController {
     private final Analyzer analyzer = new Analyzer();
+    private final Reader reader = new Reader();
     private File file = null;
 
     @FXML
@@ -43,6 +44,8 @@ public class IDEController {
     private TextArea errorMessages;
     @FXML
     private CodeArea codeArea;
+    @FXML
+    private TableView<ArrayList<String>> tableView;
 
     private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", Analyzer.getKeywords()) + ")\\b";
     private static final String DATATYPES_PATTERN = "\\b(" + String.join("|", Analyzer.getDataTypes()) + ")\\b";
@@ -189,18 +192,86 @@ public class IDEController {
     }
 
     @FXML
-    protected void executeSelectedStatement(ActionEvent event) {
+    protected void executeSelectedStatement() {
         String selection = codeArea.getSelectedText();
+        selection = selection.trim();
+        ArrayList<ArrayList<String>> printableTable = null;
 
         try {
-            analyzer.analyzeSyntax(selection);
+            String line = reader.consoleReader(selection);
+            printableTable = analyzer.analyzeSyntax(line);
         } catch (Exception e) {
             handleExceptions(e.getMessage());
         }
 
-        if(file != null) {
+        if(file != null && analyzer.getDatabase().getDbFile() != null) {
             loadTree();
         }
+
+        if(printableTable != null) {
+            createTable(printableTable);
+        }
+    }
+
+    @FXML
+    protected void executeScript(){
+        String script = codeArea.getText();
+
+        Pattern pattern = Pattern.compile("(?s).*?;");
+        Matcher matcher = pattern.matcher(script);
+
+        ArrayList<String> statements = new ArrayList<>();
+        while (matcher.find()) {
+            statements.add(matcher.group().trim());
+        }
+
+        System.out.println(statements);
+
+        for(String statement : statements) {
+            try {
+                String line = reader.consoleReader(statement);
+                ArrayList<ArrayList<String>> printableTable = analyzer.analyzeSyntax(line);
+
+                if(file != null && analyzer.getDatabase().getDbFile() != null) {
+                    loadTree();
+                }
+
+                if(printableTable != null) {
+                    createTable(printableTable);
+                }
+            } catch (Exception e) {
+                System.out.println(statement);
+                handleExceptions(e.getMessage());
+            }
+        }
+    }
+
+    protected void createTable(ArrayList<ArrayList <String>> data){
+        SingleSelectionModel<Tab> selectionModel = tabs.getSelectionModel();
+        selectionModel.select(0);
+
+        tableView.getColumns().clear();
+        tableView.getItems().clear();
+
+        ArrayList<String> columnNames = data.get(0);
+        for (int i = 0; i < columnNames.size(); i++) {
+            final int colIndex = i;
+            TableColumn<ArrayList<String>, String> column = new TableColumn<>(columnNames.get(i));
+            column.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().get(colIndex)));
+            tableView.getColumns().add(column);
+        }
+
+        ObservableList<ArrayList<String>> rows = FXCollections.observableArrayList(data.subList(1, data.size()));
+        tableView.setItems(rows);
+        tableView.setVisible(true);
+    }
+
+    @FXML
+    protected void checkFileChanges(KeyEvent event) {
+        String codeAreaText = codeArea.getText();
+        String fileText = getFileContent(file);
+
+
     }
 
     private StyleSpans<Collection<String>> computeHighlighting(String text) {

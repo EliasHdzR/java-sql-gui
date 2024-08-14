@@ -45,7 +45,7 @@
                         <Cursor fx:constant="HAND"/>
                     </cursor>
                 </Button>
-                <Button alignment="CENTER" mnemonicParsing="false" textAlignment="CENTER">
+                <Button alignment="CENTER" mnemonicParsing="false" onAction="#executeScript" textAlignment="CENTER">
                     <cursor>
                         <Cursor fx:constant="HAND"/>
                     </cursor>
@@ -63,11 +63,11 @@
                 </Button>
             </ToolBar>
             <Pane prefHeight="450.0" prefWidth="1062.0">
-                <CodeArea fx:id="codeArea" layoutX="3.0" layoutY="1.0" prefHeight="435.0" prefWidth="1055.0"/>
+                <CodeArea fx:id="codeArea" onKeyPressed="#checkFileChanges" layoutX="3.0" layoutY="1.0" prefHeight="435.0" prefWidth="1055.0"/>
             </Pane>
             <TabPane fx:id="tabs" prefHeight="280.0" prefWidth="1062.0" tabClosingPolicy="UNAVAILABLE">
                 <Tab text="Statement Output">
-                    <TableView prefHeight="138.0" prefWidth="1062.0" visible="false"/>
+                    <TableView fx:id="tableView" prefHeight="138.0" prefWidth="1062.0" visible="false"/>
                 </Tab>
                 <Tab text="Log">
                     <TextArea fx:id="errorMessages" editable="false" prefHeight="200.0" prefWidth="200.0"/>
